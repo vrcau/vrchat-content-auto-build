@@ -1,0 +1,18 @@
+{
+  "name": "com.yuxiaviation.vrchat.autobuild",
+  "displayName": "VRChat Content Auto Build",
+  "version": "0.1.0",
+  "description": "Auto login and build and upload VRChat content.",
+  "hideInEditor": false,
+  "license": "MIT",
+  "vpmDependencies": {
+    "com.vrchat.base": "^3.7.1"
+  },
+  "author": {
+    "name": "VRChat Aerospace University",
+    "email": "lipww1234@foxmail.com",
+    "url": "https://yuxiaviation.com/"
+  },
+  "unity": "2022.3",
+  "unityRelease": "22f1"
+}
