@@ -63,7 +63,15 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
 
             Debug.Log(
                 $"Uploading world: [{world.ID}] {world.Name} by {world.AuthorName}\nDescription: {world.Description}");
-            await UploadAsync(world);
+            try
+            {
+                await UploadAsync(world);
+            } catch (Exception e)
+            {
+                AutoBuildBase.ExitWithException(e);
+                return;
+            }
+
             Debug.Log("Upload complete");
 
             EditorApplication.Exit(0);
@@ -94,8 +102,12 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
             try {
                 return await VRCApi.GetWorld(worldId, true);
             }
-            catch (Exception e) {
-                throw new Exception("Failed to fetch world", e);
+            catch (Exception e)
+            {
+                var ex = new Exception("Failed to fetch world", e);
+                AutoBuildBase.ExitWithException(ex);
+
+                throw ex;
             }
         }
     }
