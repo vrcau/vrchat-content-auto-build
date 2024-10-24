@@ -89,6 +89,15 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
             EditorSceneManager.OpenScene(args.ScenePath, OpenSceneMode.Single);
             Debug.Log("Scene opened");
 
+            var hasIsCompilingNoticed = false;
+            while (EditorApplication.isCompiling)
+            {
+                if (hasIsCompilingNoticed) continue;
+
+                Debug.Log("Waiting for scripts to compile");
+                hasIsCompilingNoticed = true;
+            }
+
             try
             {
                 await InitSDKOnlineModeAsync();
