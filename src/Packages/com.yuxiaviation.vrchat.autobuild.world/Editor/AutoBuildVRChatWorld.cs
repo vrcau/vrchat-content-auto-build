@@ -82,6 +82,15 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
                 throw new Exception("Failed to get world builder");
             }
 
+            var hasIsCompilingNoticed = false;
+            while (EditorApplication.isCompiling)
+            {
+                if (hasIsCompilingNoticed) continue;
+
+                Debug.Log("Waiting for scripts to compile");
+                hasIsCompilingNoticed = true;
+            }
+
             await builder.Build();
         }
 
