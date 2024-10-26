@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -84,6 +85,10 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
         public static async Task<AutoBuildArguments> InitAutoBuildAsync()
         {
             var args = GetArguments();
+
+            var customCachePath = Path.GetFullPath("AutoBuildCache");
+            Debug.Log("Custom cache path: " + customCachePath);
+            Caching.currentCacheForWriting = Caching.AddCache(customCachePath);
 
             Debug.Log("Opening scene");
             EditorSceneManager.OpenScene(args.ScenePath, OpenSceneMode.Single);
