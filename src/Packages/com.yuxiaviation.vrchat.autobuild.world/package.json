@@ -1,7 +1,7 @@
 {
   "name": "com.yuxiaviation.vrchat.autobuild.world",
   "displayName": "VRChat Content Auto Build - Worlds",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Auto login and build and upload VRChat content.",
   "hideInEditor": false,
   "license": "MIT",
