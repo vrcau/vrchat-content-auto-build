@@ -176,8 +176,15 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
                 tcs.SetResult(true);
             }, model =>
             {
+                if (model == null)
+                {
+                    Debug.LogError("Failed to initialize SDK Account: Failed to fetch current user: Unknown error (Model is null)");
+                    tcs.SetException(new Exception("Failed to fetch current user: Unknown error (Model is null)"));
+                    return;
+                }
+
                 Debug.LogError("Failed to initialize SDK Account: Failed to fetch current user: " + model.Error);
-                tcs.SetException(new Exception("Failed to fetch current user"));
+                tcs.SetException(new Exception("Failed to fetch current user: " + model.Error));
             });
 
             await tcs.Task;
