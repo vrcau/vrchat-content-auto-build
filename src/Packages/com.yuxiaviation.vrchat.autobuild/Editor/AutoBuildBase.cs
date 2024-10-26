@@ -121,11 +121,11 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
             Debug.LogError("Failed to preform auto build:\n" + e);
             Debug.LogException(e);
 
-            Exit();
+            Exit(1);
         }
 
         [PublicAPI]
-        public static async void Exit()
+        public static async void Exit(int exitCode = 0)
         {
             if (_logOutWhenExit)
             {
@@ -140,7 +140,7 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
             }
 
             Debug.Log("Exiting");
-            EditorApplication.Exit(0);
+            EditorApplication.Exit(exitCode);
         }
 
         private static async Task InitSDKBuildersAsync()
