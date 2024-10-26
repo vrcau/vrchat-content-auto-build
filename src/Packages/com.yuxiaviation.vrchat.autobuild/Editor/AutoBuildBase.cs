@@ -26,8 +26,6 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
             var username = GetArgument(commandLineArgs, "--vrchat-auto-build-username", "VRC_AUTO_BUILD_USERNAME");
             var password = GetArgument(commandLineArgs, "--vrchat-auto-build-password", "VRC_AUTO_BUILD_PASSWORD");
             var totpKey = GetArgument(commandLineArgs, "--vrchat-auto-build-totp-key", "VRC_AUTO_BUILD_TOTP_KEY");
-            var secretStoragePath = GetArgument(commandLineArgs, "--vrchat-auto-build-secret-storage-path",
-                "VRC_AUTO_BUILD_SECRET_STORAGE_PATH");
 
             if (scenePath == null)
             {
@@ -44,12 +42,6 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
                 throw new ArgumentNullException(nameof(AutoBuildArguments.Password), "Password is required");
             }
 
-            if (secretStoragePath == null)
-            {
-                throw new ArgumentNullException(nameof(AutoBuildArguments.SecretStoragePath),
-                    "Secret storage path is required");
-            }
-
             if (totpKey == null)
             {
                 throw new ArgumentNullException(nameof(AutoBuildArguments.TotpKey), "TOTP key is required");
@@ -61,8 +53,7 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
                 ScenePath = scenePath,
                 Username = username,
                 Password = password,
-                TotpKey = totpKey,
-                SecretStoragePath = secretStoragePath
+                TotpKey = totpKey
             };
         }
 
@@ -105,7 +96,7 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
 
             try
             {
-                await InitSDKAccount(args.SecretStoragePath, args.Username);
+                await InitSDKAccount();
             }
             catch (Exception e)
             {
@@ -131,6 +122,23 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
             Debug.LogException(e);
 
             EditorApplication.Exit(1);
+        }
+
+        [PublicAPI]
+        public static void Exit()
+        {
+            if (_logOutWhenExit)
+            {
+                Debug.Log("Logging out");
+
+                APIUser.Logout();
+                ApiCredentials.Clear();
+
+                Debug.Log("Logged out");
+            }
+
+            Debug.Log("Exiting");
+            EditorApplication.Exit(0);
         }
 
         private static async Task InitSDKBuildersAsync()
@@ -167,30 +175,39 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
             await tcs.Task;
         }
 
-        private static async Task InitSDKAccount(string secretStoragePath, string username)
-        {
-            var storage = await AutoBuildSecretStorage.LoadAsync(secretStoragePath);
-            storage.LoadApiCredentials(username);
+        private static bool _logOutWhenExit;
 
+        private static async Task InitSDKAccount()
+        {
             var tcs = new TaskCompletionSource<bool>();
 
-            APIUser.InitialFetchCurrentUser(_ =>
+            if (ApiCredentials.IsLoaded())
             {
-                Debug.Log($"Logged in as [{APIUser.CurrentUser.id}] {APIUser.CurrentUser.displayName}");
-
-                tcs.SetResult(true);
-            }, model =>
-            {
-                if (model == null)
+                APIUser.InitialFetchCurrentUser(_ =>
                 {
-                    Debug.LogError("Failed to initialize SDK Account: Failed to fetch current user: Unknown error (Model is null)");
-                    tcs.SetException(new Exception("Failed to fetch current user: Unknown error (Model is null)"));
-                    return;
-                }
+                    Debug.Log($"Logged in as [{APIUser.CurrentUser.id}] {APIUser.CurrentUser.displayName}");
 
-                Debug.LogError("Failed to initialize SDK Account: Failed to fetch current user: " + model.Error);
-                tcs.SetException(new Exception("Failed to fetch current user: " + model.Error));
-            });
+                    tcs.SetResult(true);
+                }, model =>
+                {
+                    if (model == null)
+                    {
+                        Debug.LogError(
+                            "Failed to initialize SDK Account: Failed to fetch current user: Unknown error (Model is null)");
+                        tcs.SetException(new Exception("Failed to fetch current user: Unknown error (Model is null)"));
+                        return;
+                    }
+
+                    Debug.LogError("Failed to initialize SDK Account: Failed to fetch current user: " + model.Error);
+                    tcs.SetException(new Exception("Failed to fetch current user: " + model.Error));
+                });
+            }
+            else
+            {
+                _logOutWhenExit = true;
+                AutoBuildAuthentication.Login(GetArguments().Username, GetArguments().Password, GetArguments().TotpKey,
+                    () => { tcs.SetResult(true); });
+            }
 
             await tcs.Task;
         }

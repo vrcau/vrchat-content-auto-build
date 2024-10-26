@@ -9,47 +9,7 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
 {
     public static class AutoBuildAuthentication
     {
-        [PublicAPI]
-        private static async void SetupAccount()
-        {
-            var args = AutoBuildBase.GetArguments();
-
-            try
-            {
-                var storage = await AutoBuildSecretStorage.LoadAsync(args.SecretStoragePath);
-                storage.LoadApiCredentials(args.Username);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Failed to load secret storage, we will create a new one\n{ex}");
-                Debug.LogException(ex);
-
-                try
-                {
-                    AutoBuildSecretStorage.Instance.AuthCookie = ApiCredentials.GetAuthToken();
-                    AutoBuildSecretStorage.Instance.TwoFactorAuthCookie = ApiCredentials.GetTwoFactorAuthToken();
-
-                    await AutoBuildSecretStorage.Instance.SaveAsync(args.SecretStoragePath);
-                } catch (Exception e)
-                {
-                    Debug.LogError($"Failed to save secret storage\n{e}");
-                    Debug.LogException(e);
-
-                    EditorApplication.Exit(1);
-                }
-            }
-
-            Login(args.Username, args.Password, args.TotpKey, async () =>
-            {
-                AutoBuildSecretStorage.Instance.AuthCookie = ApiCredentials.GetAuthToken();
-                AutoBuildSecretStorage.Instance.TwoFactorAuthCookie = ApiCredentials.GetTwoFactorAuthToken();
-                await AutoBuildSecretStorage.Instance.SaveAsync(args.SecretStoragePath);
-
-                EditorApplication.Exit(0);
-            });
-        }
-
-        private static void Login(string username, string password, string totpKey, Action onLogin)
+        internal static void Login(string username, string password, string totpKey, Action onLogin)
         {
             API.SetOnlineMode(true);
             ApiCredentials.Load();
