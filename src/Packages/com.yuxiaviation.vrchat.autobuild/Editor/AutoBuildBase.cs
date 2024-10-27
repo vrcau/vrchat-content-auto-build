@@ -77,10 +77,7 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
         {
             var args = GetArguments();
 
-            var customCachePath = Path.GetFullPath("AutoBuildCache");
-            Debug.Log("Custom cache path: " + customCachePath);
-            Directory.CreateDirectory(customCachePath);
-            Caching.currentCacheForWriting = Caching.AddCache(customCachePath);
+            Debug.Log("Application Cache Path: " + Application.temporaryCachePath);
 
             Debug.Log("Opening scene");
             EditorSceneManager.OpenScene(args.ScenePath, OpenSceneMode.Single);
