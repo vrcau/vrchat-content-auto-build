@@ -1,7 +1,7 @@
 {
   "name": "com.yuxiaviation.vrchat.autobuild",
   "displayName": "VRChat Content Auto Build",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Auto login and build and upload VRChat content.",
   "hideInEditor": false,
   "license": "MIT",
