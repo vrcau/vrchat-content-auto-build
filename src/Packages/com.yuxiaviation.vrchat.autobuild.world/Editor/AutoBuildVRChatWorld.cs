@@ -18,7 +18,8 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
                 return;
             }
 
-            Debug.Log("Building world");
+            AutoBuildLogger.BeginLogGroup("Build world");
+            AutoBuildLogger.Log("Building world");
             try {
                 await BuildAsync();
             }
@@ -27,7 +28,8 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
                 return;
             }
 
-            Debug.Log("World build complete");
+            AutoBuildLogger.Log("World build complete");
+            AutoBuildLogger.EndLogGroup();
             EditorApplication.Exit(0);
         }
 
@@ -44,7 +46,8 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
 
             var worldId = args.ContentId;
 
-            Debug.Log("Building world");
+            AutoBuildLogger.BeginLogGroup("Build and upload world");
+            AutoBuildLogger.Log("Building world");
 
             try {
                 await BuildAsync();
@@ -54,14 +57,14 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
                 return;
             }
 
-            Debug.Log("World build complete");
+            AutoBuildLogger.Log("World build complete");
 
-            Debug.Log($"Fetching world: {worldId}");
+            AutoBuildLogger.Log($"Fetching world: {worldId}");
             var world = await FetchWorldAsync(worldId);
-            Debug.Log(
+            AutoBuildLogger.Log(
                 $"Fetched world: [{world.ID}] {world.Name} by {world.AuthorName}\nDescription: {world.Description}");
 
-            Debug.Log(
+            AutoBuildLogger.Log(
                 $"Uploading world: [{world.ID}] {world.Name} by {world.AuthorName}\nDescription: {world.Description}");
             try
             {
@@ -72,7 +75,8 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
                 return;
             }
 
-            Debug.Log("Upload complete");
+            AutoBuildLogger.Log("Upload complete");
+            AutoBuildLogger.EndLogGroup();
 
             EditorApplication.Exit(0);
         }
@@ -87,7 +91,7 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild.Worlds {
             {
                 if (hasIsCompilingNoticed) continue;
 
-                Debug.Log("Waiting for scripts to compile");
+                AutoBuildLogger.Log("Waiting for scripts to compile");
                 hasIsCompilingNoticed = true;
             }
 

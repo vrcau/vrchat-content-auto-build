@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -75,13 +74,15 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
         [PublicAPI]
         public static async Task<AutoBuildArguments> InitAutoBuildAsync()
         {
+            AutoBuildLogger.BeginLogGroup("Auto build initialization");
+
             var args = GetArguments();
 
-            Debug.Log("Application Cache Path: " + Application.temporaryCachePath);
+            AutoBuildLogger.Log("Application Cache Path: " + Application.temporaryCachePath);
 
-            Debug.Log("Opening scene");
+            AutoBuildLogger.Log("Opening scene");
             EditorSceneManager.OpenScene(args.ScenePath, OpenSceneMode.Single);
-            Debug.Log("Scene opened");
+            AutoBuildLogger.Log("Scene opened");
 
             try
             {
@@ -110,14 +111,16 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
                 throw new Exception("Failed to initialize SDK Builders", e);
             }
 
+            AutoBuildLogger.EndLogGroup();
+
             return args;
         }
 
         [PublicAPI]
         public static void ExitWithException(Exception e)
         {
-            Debug.LogError("Failed to preform auto build:\n" + e);
-            Debug.LogException(e);
+            AutoBuildLogger.LogError("Failed to preform auto build");
+            AutoBuildLogger.LogException(e);
 
             Exit(1);
         }
@@ -127,17 +130,17 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
         {
             if (_logOutWhenExit)
             {
-                Debug.Log("Logging out");
+                AutoBuildLogger.Log("Logging out");
                 APIUser.Logout();
 
                 // Wait for http request to finish
                 await Task.Delay(5000);
 
                 ApiCredentials.Clear();
-                Debug.Log("Logged out");
+                AutoBuildLogger.Log("Logged out");
             }
 
-            Debug.Log("Exiting");
+            AutoBuildLogger.Log("Exiting");
             EditorApplication.Exit(exitCode);
         }
 
@@ -161,6 +164,9 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
 
         private static async Task InitSDKOnlineModeAsync()
         {
+            AutoBuildLogger.BeginLogGroup("SDK Online Mode Initialization");
+            AutoBuildLogger.Log("Initializing SDK Online Mode");
+
             API.SetOnlineMode(true);
             ApiCredentials.Load();
 
@@ -168,37 +174,43 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
 
             ConfigManager.RemoteConfig.Init(() => { tcs.SetResult(true); }, () =>
             {
-                Debug.LogError("Failed to initialize SDK: Failed to init remote config");
+                AutoBuildLogger.LogError("Failed to initialize SDK: Failed to init remote config");
                 tcs.SetException(new Exception("Failed to init remote config"));
             });
 
             await tcs.Task;
+
+            AutoBuildLogger.Log("Initialized SDK Online Mode");
+            AutoBuildLogger.EndLogGroup();
         }
 
         private static bool _logOutWhenExit;
 
         private static async Task InitSDKAccount()
         {
+            AutoBuildLogger.BeginLogGroup("SDK Account Initialization");
+            AutoBuildLogger.Log("Initializing SDK Account");
+
             var tcs = new TaskCompletionSource<bool>();
 
             if (ApiCredentials.IsLoaded())
             {
                 APIUser.InitialFetchCurrentUser(_ =>
                 {
-                    Debug.Log($"Logged in as [{APIUser.CurrentUser.id}] {APIUser.CurrentUser.displayName}");
+                    AutoBuildLogger.Log($"Logged in as [{APIUser.CurrentUser.id}] {APIUser.CurrentUser.displayName}");
 
                     tcs.SetResult(true);
                 }, model =>
                 {
                     if (model == null)
                     {
-                        Debug.LogError(
+                        AutoBuildLogger.LogError(
                             "Failed to initialize SDK Account: Failed to fetch current user: Unknown error (Model is null)");
                         tcs.SetException(new Exception("Failed to fetch current user: Unknown error (Model is null)"));
                         return;
                     }
 
-                    Debug.LogError("Failed to initialize SDK Account: Failed to fetch current user: " + model.Error);
+                    AutoBuildLogger.LogError("Failed to initialize SDK Account: Failed to fetch current user: " + model.Error);
                     tcs.SetException(new Exception("Failed to fetch current user: " + model.Error));
                 });
             }
@@ -210,6 +222,9 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
             }
 
             await tcs.Task;
+
+            AutoBuildLogger.Log("Initialized SDK Account");
+            AutoBuildLogger.EndLogGroup();
         }
     }
 }
