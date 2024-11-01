@@ -8,6 +8,8 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
     [PublicAPI]
     public static class AutoBuildLogger
     {
+        private static int _logGroupDepth;
+
         public static void Log(LogType logType, object message, Object context = null, string source = null)
         {
             switch (logType)
@@ -55,11 +57,22 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
         public static void BeginLogGroup(string name)
         {
             Console.WriteLine("::group::" + name);
+            _logGroupDepth++;
         }
 
         public static void EndLogGroup()
         {
             Console.WriteLine("::endgroup::");
+            if (_logGroupDepth > 0)
+                _logGroupDepth--;
+        }
+
+        public static void EndAllLogGroups()
+        {
+            while (_logGroupDepth > 0)
+            {
+                EndLogGroup();
+            }
         }
 
         private static void LogAction(string action, object message, Object context = null, string source = null)

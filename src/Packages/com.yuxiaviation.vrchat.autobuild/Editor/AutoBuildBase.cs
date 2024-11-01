@@ -128,6 +128,8 @@ namespace VRChatAerospaceUniversity.VRChatAutoBuild
         [PublicAPI]
         public static async void Exit(int exitCode = 0)
         {
+            AutoBuildLogger.EndAllLogGroups();
+
             if (_logOutWhenExit)
             {
                 AutoBuildLogger.Log("Logging out");
