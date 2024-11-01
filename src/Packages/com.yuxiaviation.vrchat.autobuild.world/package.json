@@ -1,13 +1,13 @@
 {
   "name": "com.yuxiaviation.vrchat.autobuild.world",
   "displayName": "VRChat Content Auto Build - Worlds",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Auto login and build and upload VRChat content.",
   "hideInEditor": false,
   "license": "MIT",
   "vpmDependencies": {
     "com.vrchat.worlds": "^3.7.1",
-    "com.yuxiaviation.vrchat.autobuild": "0.2.4"
+    "com.yuxiaviation.vrchat.autobuild": "0.3.0"
   },
   "author": {
     "name": "VRChat Aerospace University",
